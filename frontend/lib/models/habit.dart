@@ -26,4 +26,29 @@ class Habit {
       checkins.add(t);
     }
   }
+
+  int get totalCheckins => checkins.length;
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'title': title,
+        'description': description,
+        'xp': xp,
+        'checkins': checkins.map((d) => d.toIso8601String()).toList(),
+      };
+
+  static Habit fromJson(Map<String, dynamic> map) {
+    return Habit(
+      id: map['id'] as String,
+      title: map['title'] as String,
+      description: map['description'] as String?,
+      xp: map['xp'] as int? ?? 5,
+      checkins: ((map['checkins'] as List<dynamic>? ?? []))
+          .map((s) {
+            final dt = DateTime.parse(s as String);
+            return DateTime(dt.year, dt.month, dt.day);
+          })
+          .toSet(),
+    );
+  }
 }

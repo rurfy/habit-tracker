@@ -13,15 +13,27 @@ class LevelUpApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => HabitProvider()..loadInitial(),
-      child: MaterialApp(
-        title: 'LevelUp Habits',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
-          useMaterial3: true,
-        ),
-        home: const HomeScreen(),
-      ),
+      create: (_) => HabitProvider(),
+      builder: (context, _) {
+        return MaterialApp(
+          title: 'LevelUp Habits',
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+            useMaterial3: true,
+          ),
+          home: FutureBuilder(
+            future: context.read<HabitProvider>().loadInitial(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState != ConnectionState.done) {
+                return const Scaffold(
+                  body: Center(child: CircularProgressIndicator()),
+                );
+              }
+              return const HomeScreen();
+            },
+          ),
+        );
+      },
     );
   }
 }
