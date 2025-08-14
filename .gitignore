@@ -1,20 +1,25 @@
-# Flutter/Dart/Pub
-.dart_tool/
+# Flutter/Dart
+**/.dart_tool/
 .packages
 .pub-cache/
-build/
+**/build/
 flutter_*.png
+*.flutter-plugins
+*.flutter-plugins-dependencies
 
-# IntelliJ/Android Studio
+# IDEs
 .idea/
 *.iml
-
-# VS Code
 .vscode/
 .history/
 
+# OS
+.DS_Store
+Thumbs.db
+
 # Android
 android/.gradle/
+android/captures/
 android/app/build/
 android/local.properties
 android/key.properties
@@ -22,40 +27,43 @@ android/key.properties
 *.jks
 
 # iOS
-ios/Flutter/Flutter.framework
-ios/Flutter/Flutter.podspec
 ios/Pods/
 ios/.symlinks/
 ios/Runner/GeneratedPluginRegistrant.*
 ios/Flutter/Generated.xcconfig
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
 ios/Runner.xcworkspace/
 
 # macOS
-macos/Flutter/Flutter.podspec
 macos/Pods/
 macos/.symlinks/
 macos/Flutter/GeneratedPluginRegistrant.swift
 macos/Flutter/Generated.xcconfig
 macos/Runner.xcworkspace/
+macos/Flutter/Flutter.podspec
 
-# Windows
+# Windows/Linux
 windows/flutter/ephemeral/
+linux/flutter/ephemeral/
 
-# Web
-web/.dart_tool/
+# Generated registrants (varies by platform)
+**/generated_plugin_registrant.dart
+
+# Web (builds landen ohnehin unter build/)
 web/.firebase/
 
-# Coverage
+# Coverage / test outputs
 coverage/
 *.lcov
-
-# Test output
 test/*.log
 
-# User-specific files
+# User-specific & temp
 *.swp
 *.swo
 *.tmp
-
-# Crash logs
 *.log
+
+# Optional tools
+.fvm/
+.melos_tool/
