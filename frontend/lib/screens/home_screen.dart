@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/habit_provider.dart';
+import '../providers/theme_provider.dart';
 import '../widgets/habit_tile.dart';
 import 'stats_screen.dart';
 import 'new_habit_screen.dart';
@@ -18,17 +19,22 @@ class HomeScreen extends StatelessWidget {
         title: const Text('LevelUp Habits'),
         actions: [
           IconButton(
+            tooltip: 'Theme',
+            icon: const Icon(Icons.dark_mode_outlined),
+            onPressed: () => context.read<ThemeProvider>().toggle(),
+          ),
+          IconButton(
             tooltip: 'Stats',
             icon: const Icon(Icons.insights_outlined),
             onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(builder: (_) => const StatsScreen()));
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const StatsScreen()),
+              );
             },
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
-            child: Center(
-              child: Text('XP today: ${provider.totalXpToday}'),
-            ),
+            child: Center(child: Text('XP today: ${provider.totalXpToday}')),
           ),
         ],
       ),

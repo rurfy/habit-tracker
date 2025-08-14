@@ -72,7 +72,8 @@ class HabitProvider extends ChangeNotifier {
 
   int get totalXpToday {
     final today = DateTime.now();
-    return _habits.fold(0, (sum, h) => sum + (h.isCheckedToday(today) ? h.xp : 0));
+    return _habits.fold(
+        0, (sum, h) => sum + (h.isCheckedToday(today) ? h.xp : 0));
   }
 
   int get totalXpAllTime =>
@@ -84,7 +85,8 @@ class HabitProvider extends ChangeNotifier {
     int streak = 0;
     DateTime day = DateTime.now();
     while (true) {
-      final d = DateTime(day.year, day.month, day.day).subtract(Duration(days: streak));
+      final d = DateTime(day.year, day.month, day.day)
+          .subtract(Duration(days: streak));
       if (h.checkins.contains(d)) {
         streak += 1;
       } else {
@@ -96,11 +98,27 @@ class HabitProvider extends ChangeNotifier {
 
   List<String> get earnedBadges {
     final badges = <String>[];
-    final longestStreak = _habits.fold<int>(0, (maxS, h) => maxS > streakFor(h) ? maxS : streakFor(h));
+    final longestStreak = _habits.fold<int>(
+        0, (maxS, h) => maxS > streakFor(h) ? maxS : streakFor(h));
     if (longestStreak >= 7) badges.add('7-Day Streak');
     if (totalXpAllTime >= 500) badges.add('500 XP Club');
     final totalCheckins = _habits.fold<int>(0, (s, h) => s + h.checkins.length);
     if (totalCheckins >= 30) badges.add('30 Check-ins');
     return badges;
+  }
+
+  /// Anzahl erledigter Check-ins der letzten 7 Tage (inkl. heute), Index 0 = 6 Tage zurück, 6 = heute
+  List<int> last7DaysCounts() {
+    final today = DateTime.now();
+    List<int> counts = List.filled(7, 0);
+    for (final h in _habits) {
+      for (final d in h.checkins) {
+        final diff = today.difference(DateTime(d.year, d.month, d.day)).inDays;
+        if (diff >= 0 && diff < 7) {
+          counts[6 - diff] += 1;
+        }
+      }
+    }
+    return counts;
   }
 }
