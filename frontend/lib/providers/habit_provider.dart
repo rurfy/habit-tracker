@@ -136,4 +136,19 @@ class HabitProvider extends ChangeNotifier {
     }
     return counts;
   }
+
+  List<int> lastNDaysCounts(int n) {
+    final today = DateTime.now();
+    final counts = List<int>.filled(n, 0);
+    for (final h in _habits) {
+      for (final d in h.checkins) {
+        final dd = DateTime(d.year, d.month, d.day);
+        final diff = today.difference(dd).inDays;
+        if (diff >= 0 && diff < n) {
+          counts[n - 1 - diff] += 1;
+        }
+      }
+    }
+    return counts;
+  }
 }

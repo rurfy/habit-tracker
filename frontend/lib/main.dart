@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:levelup_habits/services/notification_service.dart';
 import 'package:provider/provider.dart';
 import 'providers/habit_provider.dart';
-import 'providers/theme_provider.dart'; // <-- neu
+import 'providers/theme_provider.dart';
 import 'screens/home_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService.init();
   runApp(const LevelUpApp());
 }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:levelup_habits/models/habit.dart';
+import 'package:levelup_habits/services/notification_service.dart';
 import 'package:provider/provider.dart';
 import '../providers/habit_provider.dart';
 import '../providers/theme_provider.dart';
@@ -102,6 +103,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   void _openEditDialog(BuildContext context, Habit h) {
+    TimeOfDay? reminder;
     final titleCtrl = TextEditingController(text: h.title);
     final xpCtrl = TextEditingController(text: '${h.xp}');
     showDialog(
@@ -118,6 +120,27 @@ class HomeScreen extends StatelessWidget {
                 controller: xpCtrl,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(labelText: 'XP')),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Text(reminder == null
+                    ? 'No reminder'
+                    : 'Reminder: ${reminder!.format(context)}'),
+                const Spacer(),
+                TextButton(
+                  onPressed: () async {
+                    final picked = await showTimePicker(
+                        context: context,
+                        initialTime: reminder ?? TimeOfDay.now());
+                    if (picked != null) {
+                      reminder = picked;
+                      (context as Element).markNeedsBuild();
+                    }
+                  },
+                  child: const Text('Pick time'),
+                ),
+              ],
+            ),
           ],
         ),
         actions: [
@@ -125,12 +148,24 @@ class HomeScreen extends StatelessWidget {
               onPressed: () => Navigator.pop(context),
               child: const Text('Cancel')),
           TextButton(
-            onPressed: () {
-              context.read<HabitProvider>().editHabit(
-                    h.id,
-                    title: titleCtrl.text.trim(),
-                    xp: int.tryParse(xpCtrl.text) ?? h.xp,
-                  );
+            onPressed: () async {
+              final title = titleCtrl.text.trim();
+              final xp = int.tryParse(xpCtrl.text) ?? h.xp;
+              context
+                  .read<HabitProvider>()
+                  .editHabit(h.id, title: title, xp: xp);
+              // Schedule/cancel reminder
+              final notifId = h.id.hashCode;
+              if (reminder != null) {
+                await NotificationService.scheduleDaily(
+                  id: notifId,
+                  hour: reminder!.hour,
+                  minute: reminder!.minute,
+                  title: title.isEmpty ? h.title : title,
+                );
+              } else {
+                await NotificationService.cancel(notifId);
+              }
               Navigator.pop(context);
             },
             child: const Text('Save'),
