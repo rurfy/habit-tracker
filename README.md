@@ -1,3 +1,4 @@
+[![codecov](https://codecov.io/gh/rurfy/habit-tracker/branch/main/graph/badge.svg)](https://codecov.io/gh/rurfy/habit-tracker)
 # 📈 LevelUp Habits
 
 Ein moderner, plattformübergreifender Habit Tracker, der Nutzern hilft, Gewohnheiten zu entwickeln, Fortschritte zu verfolgen und motiviert zu bleiben – mit einem spielerischen XP- und Level-System.  
