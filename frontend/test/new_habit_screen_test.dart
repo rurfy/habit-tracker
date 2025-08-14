@@ -10,6 +10,30 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
+  testWidgets('requires title before saving', (WidgetTester tester) async {
+    final p = HabitProvider();
+    await p.loadInitial();
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider.value(
+        value: p,
+        child: const MaterialApp(home: NewHabitScreen()),
+      ),
+    );
+
+    // Direkt speichern ohne Titel -> Validator greift
+    await tester.tap(find.text('Save'));
+    await tester.pump(); // zeigt Fehlermeldung
+    expect(find.textContaining('Please enter a title'), findsOneWidget);
+
+    // Titel setzen -> Save klappt
+    await tester.enterText(find.byType(TextFormField).first, 'Meditation');
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+
+    expect(p.habits.any((h) => h.title == 'Meditation'), isTrue);
+  });
+
   testWidgets('Add habit via NewHabitScreen', (WidgetTester tester) async {
     final p = HabitProvider();
     await p.loadInitial();

@@ -38,6 +38,21 @@ void main() {
     expect(p.totalXpToday, 0);
   });
 
+  test('editHabit updates title, description and xp', () async {
+    final p = HabitProvider();
+    await p.loadInitial();
+
+    p.addHabit('Old', description: 'desc', xp: 5);
+    final id = p.habits.single.id;
+
+    p.editHabit(id, title: 'New', description: 'newdesc', xp: 9);
+
+    final h = p.habits.single;
+    expect(h.title, 'New');
+    expect(h.description, 'newdesc');
+    expect(h.xp, 9);
+  });
+
   test('earned badges updates when XP threshold reached', () async {
     final p = HabitProvider();
     await p.loadInitial();
@@ -48,5 +63,39 @@ void main() {
     // Ein Check-in -> 1000 XP all-time
     p.toggleCheckinToday(habit.id);
     expect(p.earnedBadges.contains('500 XP Club'), isTrue);
+  });
+
+  test('awards 500 XP Club', () async {
+    final p = HabitProvider();
+    await p.loadInitial();
+    p.addHabit('Grind', xp: 500);
+    final id = p.habits.single.id;
+    p.toggleCheckinToday(id);
+    expect(p.earnedBadges.contains('500 XP Club'), isTrue);
+  });
+
+  test('awards 7-Day Streak', () async {
+    final p = HabitProvider();
+    await p.loadInitial();
+    p.addHabit('Streaky', xp: 1);
+    final h = p.habits.single;
+    final now = DateTime.now();
+    for (int i = 0; i < 7; i++) {
+      final d = now.subtract(Duration(days: i));
+      h.checkins.add(DateTime(d.year, d.month, d.day));
+    }
+    expect(p.earnedBadges.contains('7-Day Streak'), isTrue);
+  });
+
+  test('awards 30 Check-ins', () async {
+    final p = HabitProvider();
+    await p.loadInitial();
+    p.addHabit('Daily', xp: 1);
+    final h = p.habits.single;
+    for (int i = 0; i < 30; i++) {
+      final d = DateTime.now().subtract(Duration(days: i));
+      h.checkins.add(DateTime(d.year, d.month, d.day));
+    }
+    expect(p.earnedBadges.contains('30 Check-ins'), isTrue);
   });
 }
