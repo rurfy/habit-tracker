@@ -70,6 +70,21 @@ class HabitProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void toggleHabitCompletion(Habit habit, DateTime date) {
+    final idx = _habits.indexWhere((h) => h.id == habit.id);
+    if (idx == -1) return;
+
+    final day = DateTime(date.year, date.month, date.day);
+    if (_habits[idx].checkins.contains(day)) {
+      _habits[idx].checkins.remove(day);
+    } else {
+      _habits[idx].checkins.add(day);
+    }
+
+    _persist();
+    notifyListeners();
+  }
+
   int get totalXpToday {
     final today = DateTime.now();
     return _habits.fold(

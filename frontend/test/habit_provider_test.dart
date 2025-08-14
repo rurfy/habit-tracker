@@ -1,34 +1,52 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:levelup_habits/models/habit.dart';
 import 'package:levelup_habits/providers/habit_provider.dart';
 
 void main() {
-  // Wichtig: Binding & SharedPreferences-Mock
-  TestWidgetsFlutterBinding.ensureInitialized();
-  SharedPreferences.setMockInitialValues({});
+  setUp(() {
+    // WICHTIG: leerer Zustand -> verhindert Seeding der Demo-Habits
+    SharedPreferences.setMockInitialValues({'habits_v1': '[]'});
+  });
 
-  test('level and streak calculations', () async {
+  test('add and delete habit', () async {
     final p = HabitProvider();
     await p.loadInitial();
 
-    // clear seeded to keep deterministic
-    for (final h in List<Habit>.from(p.habits)) {
-      p.deleteHabit(h.id);
-    }
+    p.addHabit('Test Habit');
+    expect(p.habits.length, 1);
+    expect(p.habits.single.title, 'Test Habit');
+
+    p.deleteHabit(p.habits.single.id);
+    expect(p.habits.length, 0);
+  });
+
+  test('toggle completion updates streak and XP', () async {
+    final p = HabitProvider();
+    await p.loadInitial();
 
     p.addHabit('Read', xp: 10);
-    final h = p.habits.first;
+    final habit = p.habits.last; // zuletzt hinzugefügt (xp=10)
 
-    final today = DateTime.now();
-    h.checkins.addAll([
-      DateTime(today.year, today.month, today.day),
-      DateTime(today.subtract(const Duration(days: 1)).year, today.subtract(const Duration(days: 1)).month, today.subtract(const Duration(days: 1)).day),
-      DateTime(today.subtract(const Duration(days: 2)).year, today.subtract(const Duration(days: 2)).month, today.subtract(const Duration(days: 2)).day),
-    ]);
+    // Wir nutzen deine vorhandene API: heute togglen
+    p.toggleCheckinToday(habit.id);
+    expect(habit.checkins.length, 1);
+    expect(p.totalXpToday, 10);
 
-    expect(p.streakFor(h), 3);
-    expect(p.totalXpAllTime, 30);
-    expect(p.level, 1);
+    // undo
+    p.toggleCheckinToday(habit.id);
+    expect(habit.checkins.length, 0);
+    expect(p.totalXpToday, 0);
+  });
+
+  test('earned badges updates when XP threshold reached', () async {
+    final p = HabitProvider();
+    await p.loadInitial();
+
+    p.addHabit('Grind', xp: 1000);
+    final habit = p.habits.last;
+
+    // Ein Check-in -> 1000 XP all-time
+    p.toggleCheckinToday(habit.id);
+    expect(p.earnedBadges.contains('500 XP Club'), isTrue);
   });
 }

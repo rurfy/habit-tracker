@@ -12,4 +12,9 @@ class StorageService {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(habitsKey);
   }
+
+  Future<void> delete() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(habitsKey);
+  }
 }
