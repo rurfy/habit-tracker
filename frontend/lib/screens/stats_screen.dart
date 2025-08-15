@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:fl_chart/fl_chart.dart'; // <-- NEU
+import 'package:fl_chart/fl_chart.dart';
 import '../providers/habit_provider.dart';
 
 class StatsScreen extends StatefulWidget {
@@ -9,85 +9,219 @@ class StatsScreen extends StatefulWidget {
   State<StatsScreen> createState() => _StatsScreenState();
 }
 
-class _StatsScreenState extends State<StatsScreen> {
+class _StatsScreenState extends State<StatsScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tab;
   int range = 7; // 7 oder 30
+
+  @override
+  void initState() {
+    super.initState();
+    _tab = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tab.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final p = context.watch<HabitProvider>();
-    final data = p.lastNDaysCounts(range);
-    final labels = _weekdayLabels(range);
+
+    final xpData = p.dailyXpCounts(range);
+    final chkData = p.lastNDaysCounts(range);
+    final labels = _labels(range);
+    final top5 = p.topHabitsByCheckins(5);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Stats')),
+      appBar: AppBar(
+        title: const Text('Stats'),
+        bottom: TabBar(
+          controller: _tab,
+          tabs: const [
+            Tab(text: 'XP'),
+            Tab(text: 'Check-ins'),
+            Tab(text: 'Top 5'),
+          ],
+        ),
+        actions: [
+          const SizedBox(width: 8),
+          ChoiceChip(
+              label: const Text('7d'),
+              selected: range == 7,
+              onSelected: (_) => setState(() => range = 7)),
+          const SizedBox(width: 8),
+          ChoiceChip(
+              label: const Text('30d'),
+              selected: range == 30,
+              onSelected: (_) => setState(() => range = 30)),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(children: [
-              ChoiceChip(
-                  label: const Text('7d'),
-                  selected: range == 7,
-                  onSelected: (_) => setState(() => range = 7)),
-              const SizedBox(width: 8),
-              ChoiceChip(
-                  label: const Text('30d'),
-                  selected: range == 30,
-                  onSelected: (_) => setState(() => range = 30)),
-            ]),
-            const SizedBox(height: 12),
             Text('Level: ${p.level}',
                 style: Theme.of(context).textTheme.headlineSmall),
+            const SizedBox(height: 6),
             Text('Total XP: ${p.totalXpAllTime}'),
             const SizedBox(height: 12),
-            SizedBox(
-              height: 180,
-              child: BarChart(
-                BarChartData(
-                  borderData: FlBorderData(show: false),
-                  gridData: const FlGridData(show: false),
-                  titlesData: FlTitlesData(
-                    leftTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
-                    topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
-                    rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        getTitlesWidget: (value, meta) {
-                          final i = value.toInt();
-                          if (i < 0 || i >= labels.length) {
-                            return const SizedBox.shrink();
-                          }
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Text(labels[i],
-                                style: const TextStyle(fontSize: 10)),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  barGroups: List.generate(
-                    data.length,
-                    (i) => BarChartGroupData(x: i, barRods: [
-                      BarChartRodData(toY: data[i].toDouble(), width: 10)
-                    ]),
-                  ),
-                ),
+            Expanded(
+              child: TabBarView(
+                controller: _tab,
+                children: [
+                  // XP TAB – Line chart
+                  _buildXpLineChart(xpData, labels),
+
+                  // CHECK-INS TAB – Bar chart
+                  _buildCheckinsBar(chkData, labels),
+
+                  // TOP 5 TAB – horizontal bars (simple)
+                  _buildTopHabits(top5),
+                ],
               ),
             ),
-            // ... dein Rest (Streak-Liste etc.)
           ],
         ),
       ),
     );
   }
 
-  List<String> _weekdayLabels(int n) {
+  Widget _buildXpLineChart(List<int> data, List<String> labels) {
+    return LineChart(
+      LineChartData(
+        gridData: const FlGridData(show: false),
+        borderData: FlBorderData(show: false),
+        titlesData: FlTitlesData(
+          leftTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (value, meta) {
+                final i = value.toInt();
+                if (i < 0 || i >= labels.length) return const SizedBox.shrink();
+                return Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(labels[i], style: const TextStyle(fontSize: 10)),
+                );
+              },
+            ),
+          ),
+        ),
+        lineBarsData: [
+          LineChartBarData(
+            isCurved: true,
+            spots: List.generate(
+                data.length, (i) => FlSpot(i.toDouble(), data[i].toDouble())),
+            dotData: const FlDotData(show: false),
+            belowBarData: BarAreaData(show: false),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCheckinsBar(List<int> data, List<String> labels) {
+    return BarChart(
+      BarChartData(
+        borderData: FlBorderData(show: false),
+        gridData: const FlGridData(show: false),
+        titlesData: FlTitlesData(
+          leftTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (value, meta) {
+                final i = value.toInt();
+                if (i < 0 || i >= labels.length) return const SizedBox.shrink();
+                return Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(labels[i], style: const TextStyle(fontSize: 10)),
+                );
+              },
+            ),
+          ),
+        ),
+        barGroups: List.generate(
+          data.length,
+          (i) => BarChartGroupData(
+              x: i,
+              barRods: [BarChartRodData(toY: data[i].toDouble(), width: 12)]),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTopHabits(List<MapEntry<dynamic, int>> top5) {
+    if (top5.isEmpty) {
+      return const Center(child: Text('No data yet'));
+    }
+    // Simple horizontal list of bars
+    final maxVal = top5
+        .map((e) => e.value)
+        .fold<int>(0, (m, v) => v > m ? v : m)
+        .toDouble()
+        .clamp(1, 9999);
+    return ListView.separated(
+      itemCount: top5.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (_, i) {
+        final item = top5[i];
+        final ratio = (item.value / maxVal).clamp(0, 1);
+        return Row(
+          children: [
+            SizedBox(width: 40, child: Text('${i + 1}.')),
+            Expanded(
+              child: Stack(
+                children: [
+                  Container(
+                      height: 22,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: Theme.of(context).colorScheme.surfaceContainerHighest)),
+                  FractionallySizedBox(
+                    widthFactor: ratio.toDouble(),
+                    child: Container(
+                        height: 22,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withOpacity(0.25))),
+                  ),
+                  Positioned.fill(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text('${item.key.title} (${item.value})')),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  List<String> _labels(int n) {
     final now = DateTime.now();
     final days = List<DateTime>.generate(
         n, (i) => now.subtract(Duration(days: n - 1 - i)));

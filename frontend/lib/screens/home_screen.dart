@@ -77,6 +77,7 @@ class HomeScreen extends StatelessWidget {
                           ],
                         ),
                       );
+                      if (!context.mounted) return false;
                       if (ok == true) {
                         context.read<HabitProvider>().deleteHabit(h.id);
                       }
@@ -166,6 +167,7 @@ class HomeScreen extends StatelessWidget {
               } else {
                 await NotificationService.cancel(notifId);
               }
+              if (!context.mounted) return;
               Navigator.pop(context);
             },
             child: const Text('Save'),

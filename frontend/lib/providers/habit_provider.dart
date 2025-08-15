@@ -151,4 +151,27 @@ class HabitProvider extends ChangeNotifier {
     }
     return counts;
   }
+
+  /// XP pro Tag für die letzten [n] Tage, Index 0 = ältester Tag, n-1 = heute
+  List<int> dailyXpCounts(int n) {
+    final today = DateTime.now();
+    final counts = List<int>.filled(n, 0);
+    for (final h in _habits) {
+      for (final d in h.checkins) {
+        final dd = DateTime(d.year, d.month, d.day);
+        final diff = today.difference(dd).inDays;
+        if (diff >= 0 && diff < n) {
+          counts[n - 1 - diff] += h.xp;
+        }
+      }
+    }
+    return counts;
+  }
+
+  /// Top-N Gewohnheiten nach Check-in-Anzahl (absteigend)
+  List<MapEntry<Habit, int>> topHabitsByCheckins(int topN) {
+    final entries = _habits.map((h) => MapEntry(h, h.checkins.length)).toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    return entries.take(topN).toList();
+  }
 }
