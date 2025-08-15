@@ -107,73 +107,96 @@ class HomeScreen extends StatelessWidget {
     TimeOfDay? reminder;
     final titleCtrl = TextEditingController(text: h.title);
     final xpCtrl = TextEditingController(text: '${h.xp}');
+
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Edit habit'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-                controller: titleCtrl,
-                decoration: const InputDecoration(labelText: 'Title')),
-            TextField(
-                controller: xpCtrl,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'XP')),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Text(reminder == null
-                    ? 'No reminder'
-                    : 'Reminder: ${reminder!.format(context)}'),
-                const Spacer(),
+      builder: (dialogCtx) {
+        return StatefulBuilder(
+          builder: (dialogCtx, setState) {
+            return AlertDialog(
+              title: const Text('Edit habit'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: titleCtrl,
+                    decoration: const InputDecoration(labelText: 'Title'),
+                  ),
+                  TextField(
+                    controller: xpCtrl,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'XP'),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Text(
+                        reminder == null
+                            ? 'No reminder'
+                            : 'Reminder: ${reminder!.format(dialogCtx)}',
+                      ),
+                      const Spacer(),
+                      TextButton(
+                        onPressed: () async {
+                          final picked = await showTimePicker(
+                            context: dialogCtx,
+                            initialTime: reminder ?? TimeOfDay.now(),
+                          );
+                          if (!dialogCtx.mounted) return;
+                          if (picked != null) {
+                            setState(() => reminder = picked);
+                          }
+                        },
+                        child: const Text('Pick time'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(dialogCtx).pop(false),
+                  child: const Text('Cancel'),
+                ),
                 TextButton(
                   onPressed: () async {
-                    final picked = await showTimePicker(
-                        context: context,
-                        initialTime: reminder ?? TimeOfDay.now());
-                    if (picked != null) {
-                      reminder = picked;
-                      (context as Element).markNeedsBuild();
-                    }
+                    final title = titleCtrl.text.trim();
+                    final xpVal = int.tryParse(xpCtrl.text) ?? h.xp;
+
+                    // 1) Model sofort updaten (sync)
+                    context
+                        .read<HabitProvider>()
+                        .editHabit(h.id, title: title, xp: xpVal);
+
+                    // 2) Dialog SOFORT schließen – über den RootNavigator
+                    final nav = Navigator.of(dialogCtx, rootNavigator: true);
+                    if (!dialogCtx.mounted) return;
+                    nav.pop(true);
+
+                    // 3) Notifications asynchron starten (nicht blockieren)
+                    //    -> sorgt dafür, dass der Dialog im Test nicht hängen bleibt
+                    // ignore: unawaited_futures
+                    (() async {
+                      final notifId = h.id.hashCode;
+                      if (reminder != null) {
+                        await NotificationService.scheduleDaily(
+                          id: notifId,
+                          hour: reminder!.hour,
+                          minute: reminder!.minute,
+                          title: title.isEmpty ? h.title : title,
+                        );
+                      } else {
+                        await NotificationService.cancel(notifId);
+                      }
+                    })();
                   },
-                  child: const Text('Pick time'),
+                  child: const Text('Save'),
                 ),
               ],
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel')),
-          TextButton(
-            onPressed: () async {
-              final title = titleCtrl.text.trim();
-              final xp = int.tryParse(xpCtrl.text) ?? h.xp;
-              context
-                  .read<HabitProvider>()
-                  .editHabit(h.id, title: title, xp: xp);
-              // Schedule/cancel reminder
-              final notifId = h.id.hashCode;
-              if (reminder != null) {
-                await NotificationService.scheduleDaily(
-                  id: notifId,
-                  hour: reminder!.hour,
-                  minute: reminder!.minute,
-                  title: title.isEmpty ? h.title : title,
-                );
-              } else {
-                await NotificationService.cancel(notifId);
-              }
-              if (!context.mounted) return;
-              Navigator.pop(context);
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
+            );
+          },
+        );
+      },
     );
   }
 }

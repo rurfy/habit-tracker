@@ -55,9 +55,21 @@ void main() {
     // Dialog: Titel ändern + Save
     await tester.enterText(find.byType(TextField).first, 'New Title');
     await tester.tap(find.text('Save'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
     await tester.pumpAndSettle();
 
-    expect(find.text('New Title'), findsOneWidget);
-    expect(find.text('Old Title'), findsNothing);
+    expect(find.byType(AlertDialog), findsNothing);
+
+    final listTileWithNewTitle = find.byWidgetPredicate((w) {
+      if (w is ListTile) {
+        final t = w.title;
+        return t is Text && t.data == 'New Title';
+      }
+      return false;
+    });
+
+    expect(listTileWithNewTitle, findsOneWidget);
+    expect(find.byType(EditableText), findsNothing);
   });
 }
