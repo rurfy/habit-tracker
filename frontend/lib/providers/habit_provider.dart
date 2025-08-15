@@ -174,4 +174,19 @@ class HabitProvider extends ChangeNotifier {
       ..sort((a, b) => b.value.compareTo(a.value));
     return entries.take(topN).toList();
   }
+
+  String exportJson() {
+    return jsonEncode(_habits.map((h) => h.toJson()).toList());
+  }
+
+  Future<void> importJson(String json) async {
+    final list = (jsonDecode(json) as List)
+        .map((e) => Habit.fromJson(e as Map<String, dynamic>))
+        .toList();
+    _habits
+      ..clear()
+      ..addAll(list);
+    await _persist();
+    notifyListeners();
+  }
 }

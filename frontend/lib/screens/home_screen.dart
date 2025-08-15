@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:levelup_habits/models/habit.dart';
 import 'package:levelup_habits/services/notification_service.dart';
 import 'package:provider/provider.dart';
@@ -34,6 +35,56 @@ class HomeScreen extends StatelessWidget {
               );
             },
           ),
+          IconButton(
+            tooltip: 'Export',
+            icon: const Icon(Icons.download_outlined),
+            onPressed: () async {
+              final json = context.read<HabitProvider>().exportJson();
+              await Clipboard.setData(ClipboardData(text: json));
+              if (!context.mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('JSON in Zwischenablage')),
+              );
+            },
+          ),
+          IconButton(
+            tooltip: 'Import',
+            icon: const Icon(Icons.upload_outlined),
+            onPressed: () async {
+              final ctrl = TextEditingController();
+              final ok = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: const Text('Import JSON'),
+                  content: TextField(
+                    controller: ctrl,
+                    maxLines: 8,
+                    decoration: const InputDecoration(
+                      hintText: 'Füge hier dein JSON ein',
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: const Text('Cancel')),
+                    TextButton(
+                        onPressed: () => Navigator.pop(ctx, true),
+                        child: const Text('Import')),
+                  ],
+                ),
+              );
+              if (!context.mounted) return;
+              if (ok == true && ctrl.text.trim().isNotEmpty) {
+                await context
+                    .read<HabitProvider>()
+                    .importJson(ctrl.text.trim());
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Import erfolgreich')),
+                );
+              }
+            },
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
             child: Center(child: Text('XP today: ${provider.totalXpToday}')),
@@ -41,7 +92,33 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
       body: habits.isEmpty
-          ? const Center(child: Text('No habits yet. Add your first one!'))
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.flag_circle_outlined, size: 72),
+                    const SizedBox(height: 12),
+                    Text('Noch keine Habits',
+                        style: Theme.of(context).textTheme.titleLarge),
+                    const SizedBox(height: 8),
+                    const Text('Starte mit deinem ersten Habit und sammle XP!'),
+                    const SizedBox(height: 16),
+                    FilledButton.icon(
+                      icon: const Icon(Icons.add),
+                      label: const Text('Ersten Habit anlegen'),
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (_) => const NewHabitScreen()),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            )
           : ListView.builder(
               itemCount: habits.length,
               itemBuilder: (context, index) {
