@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:levelup_habits/models/habit.dart';
-import 'package:levelup_habits/services/notification_service.dart';
+import 'package:levelup_habits/services/notifier.dart';
 import 'package:provider/provider.dart';
 import '../providers/habit_provider.dart';
 import '../providers/theme_provider.dart';
@@ -10,7 +10,10 @@ import 'stats_screen.dart';
 import 'new_habit_screen.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({super.key, this.timePicker});
+
+  final Future<TimeOfDay?> Function(BuildContext ctx, TimeOfDay initial)?
+      timePicker;
 
   @override
   Widget build(BuildContext context) {
@@ -160,7 +163,8 @@ class HomeScreen extends StatelessWidget {
                       }
                       return ok ?? false;
                     } else {
-                      _openEditDialog(context, h);
+                      final notifier = context.read<Notifier>();
+                      _openEditDialog(context, h, notifier);
                       return false;
                     }
                   },
@@ -180,7 +184,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  void _openEditDialog(BuildContext context, Habit h) {
+  void _openEditDialog(BuildContext context, Habit h, Notifier notifier) {
     TimeOfDay? reminder;
     final titleCtrl = TextEditingController(text: h.title);
     final xpCtrl = TextEditingController(text: '${h.xp}');
@@ -215,10 +219,11 @@ class HomeScreen extends StatelessWidget {
                       const Spacer(),
                       TextButton(
                         onPressed: () async {
-                          final picked = await showTimePicker(
-                            context: dialogCtx,
-                            initialTime: reminder ?? TimeOfDay.now(),
-                          );
+                          final pickFn = timePicker ??
+                              ((ctx, initial) => showTimePicker(
+                                  context: ctx, initialTime: initial));
+                          final picked = await pickFn(
+                              dialogCtx, reminder ?? TimeOfDay.now());
                           if (!dialogCtx.mounted) return;
                           if (picked != null) {
                             setState(() => reminder = picked);
@@ -240,30 +245,29 @@ class HomeScreen extends StatelessWidget {
                     final title = titleCtrl.text.trim();
                     final xpVal = int.tryParse(xpCtrl.text) ?? h.xp;
 
+                    // Provider-Reads mit dem DIALOG-Kontext:
+                    final habitProv = dialogCtx.read<HabitProvider>();
+
                     // 1) Model sofort updaten (sync)
-                    context
-                        .read<HabitProvider>()
-                        .editHabit(h.id, title: title, xp: xpVal);
+                    habitProv.editHabit(h.id, title: title, xp: xpVal);
 
-                    // 2) Dialog SOFORT schließen – über den RootNavigator
-                    final nav = Navigator.of(dialogCtx, rootNavigator: true);
+                    // 2) Dialog sofort schließen
                     if (!dialogCtx.mounted) return;
-                    nav.pop(true);
+                    Navigator.of(dialogCtx).pop(true);
 
-                    // 3) Notifications asynchron starten (nicht blockieren)
-                    //    -> sorgt dafür, dass der Dialog im Test nicht hängen bleibt
+                    // 3) Notifications asynchron (nicht blockieren)
                     // ignore: unawaited_futures
                     (() async {
                       final notifId = h.id.hashCode;
                       if (reminder != null) {
-                        await NotificationService.scheduleDaily(
+                        await notifier.scheduleDaily(
                           id: notifId,
                           hour: reminder!.hour,
                           minute: reminder!.minute,
                           title: title.isEmpty ? h.title : title,
                         );
                       } else {
-                        await NotificationService.cancel(notifId);
+                        await notifier.cancel(notifId);
                       }
                     })();
                   },
