@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:levelup_habits/models/habit.dart';
+import 'package:levelup_habits/screens/settings_screen.dart';
 import 'package:levelup_habits/services/notifier.dart';
 import 'package:provider/provider.dart';
 import '../providers/habit_provider.dart';
@@ -39,53 +40,12 @@ class HomeScreen extends StatelessWidget {
             },
           ),
           IconButton(
-            tooltip: 'Export',
-            icon: const Icon(Icons.download_outlined),
-            onPressed: () async {
-              final json = context.read<HabitProvider>().exportJson();
-              await Clipboard.setData(ClipboardData(text: json));
-              if (!context.mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('JSON in Zwischenablage')),
+            tooltip: 'Settings',
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const SettingsScreen()),
               );
-            },
-          ),
-          IconButton(
-            tooltip: 'Import',
-            icon: const Icon(Icons.upload_outlined),
-            onPressed: () async {
-              final ctrl = TextEditingController();
-              final ok = await showDialog<bool>(
-                context: context,
-                builder: (ctx) => AlertDialog(
-                  title: const Text('Import JSON'),
-                  content: TextField(
-                    controller: ctrl,
-                    maxLines: 8,
-                    decoration: const InputDecoration(
-                      hintText: 'Füge hier dein JSON ein',
-                    ),
-                  ),
-                  actions: [
-                    TextButton(
-                        onPressed: () => Navigator.pop(ctx, false),
-                        child: const Text('Cancel')),
-                    TextButton(
-                        onPressed: () => Navigator.pop(ctx, true),
-                        child: const Text('Import')),
-                  ],
-                ),
-              );
-              if (!context.mounted) return;
-              if (ok == true && ctrl.text.trim().isNotEmpty) {
-                await context
-                    .read<HabitProvider>()
-                    .importJson(ctrl.text.trim());
-                if (!context.mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Import erfolgreich')),
-                );
-              }
             },
           ),
           Padding(

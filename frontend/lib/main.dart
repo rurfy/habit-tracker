@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:levelup_habits/providers/settings_provider.dart';
 import 'package:levelup_habits/services/notification_service.dart';
 import 'package:levelup_habits/services/notifier.dart';
 import 'package:provider/provider.dart';
@@ -22,6 +23,7 @@ class LevelUpApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => HabitProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         Provider<Notifier>(create: (_) => LocalNotifier()),
+        ChangeNotifierProvider(create: (_) => SettingsProvider()),
       ],
       builder: (context, _) {
         final theme = context.watch<ThemeProvider>();
