@@ -1,0 +1,32 @@
+name: deploy-web
+
+on:
+  workflow_run:
+    workflows: ["flutter-ci"]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  build-web:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Build Web (with correct base href)
+        run: |
+          cd frontend
+          flutter pub get
+          flutter build web --release --base-href /habit-tracker/
+          cp build/web/index.html build/web/404.html
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./frontend/build/web
+          publish_branch: gh-pages

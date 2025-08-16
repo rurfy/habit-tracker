@@ -1,0 +1,30 @@
+name: release-ios
+
+on:
+  workflow_run:
+    workflows: ["flutter-ci"]
+    types: [completed]
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  build-ios:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Build iOS (no codesign)
+        run: |
+          cd frontend
+          flutter pub get
+          flutter build ios --release --no-codesign
+      - name: Upload iOS build
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-release
+          path: frontend/build/ios/iphoneos

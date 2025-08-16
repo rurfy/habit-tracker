@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:levelup_habits/models/habit.dart';
 import 'package:levelup_habits/screens/settings_screen.dart';
 import 'package:levelup_habits/services/notifier.dart';

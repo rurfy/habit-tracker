@@ -1,0 +1,46 @@
+name: release-android
+
+on:
+  workflow_run:
+    workflows: ["flutter-ci"]
+    types: [completed]
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  build-android:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK components
+        run: |
+          sdkmanager --install "platforms;android-35" "build-tools;35.0.0" || true
+          sdkmanager --install "platforms;android-34" "build-tools;34.0.0" || true
+          yes | sdkmanager --licenses
+
+      - name: Build Android APK
+        run: |
+          cd frontend
+          flutter pub get
+          flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release.apk
+          path: frontend/build/app/outputs/flutter-apk/app-release.apk
