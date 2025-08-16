@@ -39,6 +39,17 @@ jobs:
           flutter pub get
           flutter build apk --release
 
+      - name: Create GitHub Release & attach APK
+        uses: softprops/action-gh-release@v2
+        with:
+            tag_name: ${{ github.ref_name }}   # nutzt das Tag, z.B. v0.2.0
+            name: Release ${{ github.ref_name }}
+            files: frontend/build/app/outputs/flutter-apk/app-release.apk
+            draft: false
+            prerelease: false
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:

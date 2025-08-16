@@ -1,4 +1,22 @@
-[![codecov](https://codecov.io/gh/rurfy/habit-tracker/branch/main/graph/badge.svg)](https://codecov.io/gh/rurfy/habit-tracker)
+<p align="center">
+  <a href="https://github.com/rurfy/habit-tracker/actions/workflows/ci.yml">
+    <img alt="CI" src="https://github.com/rurfy/habit-tracker/actions/workflows/ci.yml/badge.svg">
+  </a>
+  <a href="https://codecov.io/gh/rurfy/habit-tracker">
+    <img alt="Coverage" src="https://codecov.io/gh/rurfy/habit-tracker/branch/main/graph/badge.svg">
+  </a>
+  <a href="https://rurfy.github.io/habit-tracker/">
+    <img alt="Web Demo" src="https://img.shields.io/badge/web-demo-blue">
+  </a>
+  <a href="https://github.com/rurfy/habit-tracker/releases">
+    <img alt="Releases" src="https://img.shields.io/github/v/release/rurfy/habit-tracker">
+  </a>
+</p>
+
+**👉 [Live Demo](https://rurfy.github.io/habit-tracker/)**  
+**👉 [Neuester Android Build](https://github.com/rurfy/habit-tracker/releases)**
+
+
 # 📈 LevelUp Habits
 
 Ein moderner, plattformübergreifender Habit Tracker, der Nutzern hilft, Gewohnheiten zu entwickeln, Fortschritte zu verfolgen und motiviert zu bleiben – mit einem spielerischen XP- und Level-System.  
