@@ -98,11 +98,11 @@ class _StatsScreenState extends State<StatsScreen>
         borderData: FlBorderData(show: false),
         titlesData: FlTitlesData(
           leftTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              const AxisTitles(),
           topTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              const AxisTitles(),
           rightTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              const AxisTitles(),
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
@@ -123,7 +123,7 @@ class _StatsScreenState extends State<StatsScreen>
             spots: List.generate(
                 data.length, (i) => FlSpot(i.toDouble(), data[i].toDouble())),
             dotData: const FlDotData(show: false),
-            belowBarData: BarAreaData(show: false),
+            belowBarData: BarAreaData(),
           ),
         ],
       ),
@@ -137,11 +137,11 @@ class _StatsScreenState extends State<StatsScreen>
         gridData: const FlGridData(show: false),
         titlesData: FlTitlesData(
           leftTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              const AxisTitles(),
           topTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              const AxisTitles(),
           rightTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              const AxisTitles(),
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,

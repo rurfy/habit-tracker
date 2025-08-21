@@ -1,0 +1,19 @@
+name: Bug report
+description: Create a report to help us improve
+title: "[bug] "
+labels: ["type:bug"]
+body:
+  - type: textarea
+    attributes:
+      label: Describe the bug
+      description: What happened? What did you expect?
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Steps to reproduce
+      description: Provide minimal steps
+  - type: input
+    attributes:
+      label: App version / platform
+      description: e.g., web / Android / iOS

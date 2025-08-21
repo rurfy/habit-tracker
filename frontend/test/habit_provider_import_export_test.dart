@@ -7,7 +7,7 @@ void main() {
 
   test('export/import roundtrip', () async {
     final p = HabitProvider(); await p.loadInitial();
-    p.addHabit('A', xp: 5); p.addHabit('B', xp: 7);
+    p.addHabit('A'); p.addHabit('B', xp: 7);
     final json = p.exportJson();
 
     final q = HabitProvider(); await q.loadInitial();

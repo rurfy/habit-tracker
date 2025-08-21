@@ -10,7 +10,7 @@ void main() {
   test('dailyXpCounts sums XP per day', () async {
     final p = HabitProvider();
     await p.loadInitial();
-    p.addHabit('A', xp: 5);
+    p.addHabit('A');
     p.addHabit('B', xp: 10);
 
     final a = p.habits[0];

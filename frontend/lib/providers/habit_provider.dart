@@ -22,7 +22,7 @@ class HabitProvider extends ChangeNotifier {
     } else {
       // seed demo
       _habits.addAll([
-        Habit(id: '1', title: '10 min reading', xp: 5),
+        Habit(id: '1', title: '10 min reading'),
         Habit(id: '2', title: 'Short workout', xp: 8),
       ]);
     }

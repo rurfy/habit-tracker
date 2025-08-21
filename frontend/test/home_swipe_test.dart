@@ -29,7 +29,7 @@ void main() {
   testWidgets('Swipe right deletes habit after confirm', (tester) async {
     final p = HabitProvider();
     await p.loadInitial();
-    p.addHabit('To Delete', xp: 5);
+    p.addHabit('To Delete');
 
     await tester.pumpWidget(
       MultiProvider(
@@ -57,7 +57,7 @@ void main() {
   testWidgets('Swipe left opens edit dialog and saves changes', (tester) async {
     final p = HabitProvider();
     await p.loadInitial();
-    p.addHabit('Old Title', xp: 5);
+    p.addHabit('Old Title');
 
     await tester.pumpWidget(
       MultiProvider(

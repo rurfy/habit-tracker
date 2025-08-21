@@ -42,7 +42,7 @@ void main() {
     final p = HabitProvider();
     await p.loadInitial();
 
-    p.addHabit('Old', description: 'desc', xp: 5);
+    p.addHabit('Old', description: 'desc');
     final id = p.habits.single.id;
 
     p.editHabit(id, title: 'New', description: 'newdesc', xp: 9);

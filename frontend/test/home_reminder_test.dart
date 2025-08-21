@@ -28,7 +28,7 @@ void main() {
 
     final p = HabitProvider();
     await p.loadInitial();
-    p.addHabit('Test Habit', xp: 5);
+    p.addHabit('Test Habit');
 
     // injiziere Notifier & einen deterministischen timePicker (10:30)
     await tester.pumpWidget(
@@ -81,7 +81,7 @@ void main() {
 
     final p = HabitProvider();
     await p.loadInitial();
-    p.addHabit('Test Habit', xp: 5);
+    p.addHabit('Test Habit');
 
     await tester.pumpWidget(
       MultiProvider(

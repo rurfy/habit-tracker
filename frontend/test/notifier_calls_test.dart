@@ -34,7 +34,7 @@ void main() {
     // HabitProvider vorbereiten
     final p = HabitProvider();
     await p.loadInitial();
-    p.addHabit('EditMe', xp: 5);
+    p.addHabit('EditMe');
 
     // Fake TimePicker: gibt deterministisch 20:15 zurück
     Future<TimeOfDay?> fakePicker(BuildContext _, TimeOfDay __) async =>

@@ -3,7 +3,7 @@ import 'package:levelup_habits/models/habit.dart';
 
 void main() {
   test('Habit toggleToday / isCheckedToday / totalCheckins', () {
-    final h = Habit(id: '1', title: 'Read', xp: 5);
+    final h = Habit(id: '1', title: 'Read');
     final today = DateTime.now();
 
     expect(h.isCheckedToday(today), isFalse);
