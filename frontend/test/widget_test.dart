@@ -10,7 +10,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   SharedPreferences.setMockInitialValues({});
 
-  testWidgets('App loads HomeScreen and adds a habit', (WidgetTester tester) async {
+  testWidgets('App loads HomeScreen and adds a habit',
+      (WidgetTester tester) async {
     await tester.pumpWidget(
       ChangeNotifierProvider(
         create: (_) => HabitProvider(),

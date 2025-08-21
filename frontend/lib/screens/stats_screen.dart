@@ -97,12 +97,9 @@ class _StatsScreenState extends State<StatsScreen>
         gridData: const FlGridData(show: false),
         borderData: FlBorderData(show: false),
         titlesData: FlTitlesData(
-          leftTitles:
-              const AxisTitles(),
-          topTitles:
-              const AxisTitles(),
-          rightTitles:
-              const AxisTitles(),
+          leftTitles: const AxisTitles(),
+          topTitles: const AxisTitles(),
+          rightTitles: const AxisTitles(),
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
@@ -136,12 +133,9 @@ class _StatsScreenState extends State<StatsScreen>
         borderData: FlBorderData(show: false),
         gridData: const FlGridData(show: false),
         titlesData: FlTitlesData(
-          leftTitles:
-              const AxisTitles(),
-          topTitles:
-              const AxisTitles(),
-          rightTitles:
-              const AxisTitles(),
+          leftTitles: const AxisTitles(),
+          topTitles: const AxisTitles(),
+          rightTitles: const AxisTitles(),
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
@@ -192,7 +186,9 @@ class _StatsScreenState extends State<StatsScreen>
                       height: 22,
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
-                          color: Theme.of(context).colorScheme.surfaceContainerHighest)),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest)),
                   FractionallySizedBox(
                     widthFactor: ratio.toDouble(),
                     child: Container(

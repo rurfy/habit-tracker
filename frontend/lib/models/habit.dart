@@ -43,12 +43,10 @@ class Habit {
       title: map['title'] as String,
       description: map['description'] as String?,
       xp: map['xp'] as int? ?? 5,
-      checkins: ((map['checkins'] as List<dynamic>? ?? []))
-          .map((s) {
-            final dt = DateTime.parse(s as String);
-            return DateTime(dt.year, dt.month, dt.day);
-          })
-          .toSet(),
+      checkins: ((map['checkins'] as List<dynamic>? ?? [])).map((s) {
+        final dt = DateTime.parse(s as String);
+        return DateTime(dt.year, dt.month, dt.day);
+      }).toSet(),
     );
   }
 }

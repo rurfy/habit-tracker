@@ -10,7 +10,8 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  testWidgets('Tapping checkbox toggles completion', (WidgetTester tester) async {
+  testWidgets('Tapping checkbox toggles completion',
+      (WidgetTester tester) async {
     final p = HabitProvider();
     await p.loadInitial();
     p.addHabit('Read', xp: 10);

@@ -12,7 +12,8 @@ void main() {
   });
 
   test('does not seed when habits key exists', () async {
-    SharedPreferences.setMockInitialValues({'habits_v1': '[]'}); // leer, aber key existiert
+    SharedPreferences.setMockInitialValues(
+        {'habits_v1': '[]'}); // leer, aber key existiert
     final p = HabitProvider();
     await p.loadInitial();
     expect(p.habits.length, 0);

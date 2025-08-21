@@ -27,12 +27,15 @@ class _NewHabitScreenState extends State<NewHabitScreen> {
               TextFormField(
                 controller: _titleCtrl,
                 decoration: const InputDecoration(labelText: 'Title'),
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Please enter a title' : null,
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? 'Please enter a title'
+                    : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _xpCtrl,
-                decoration: const InputDecoration(labelText: 'XP (per check-in)'),
+                decoration:
+                    const InputDecoration(labelText: 'XP (per check-in)'),
                 keyboardType: TextInputType.number,
                 validator: (v) {
                   if (v == null || v.isEmpty) return 'Enter XP';

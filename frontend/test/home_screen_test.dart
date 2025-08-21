@@ -7,7 +7,8 @@ import 'package:levelup_habits/screens/home_screen.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('HomeScreen renders and shows title', (WidgetTester tester) async {
+  testWidgets('HomeScreen renders and shows title',
+      (WidgetTester tester) async {
     await tester.pumpWidget(
       ChangeNotifierProvider(
         create: (_) => HabitProvider(),
