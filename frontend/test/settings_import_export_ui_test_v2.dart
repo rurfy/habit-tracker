@@ -123,7 +123,8 @@ void main() {
     await tester.pumpAndSettle();
 
     // Provider updated
-    expect(habits.habits.any((h) => h.title == 'Imported' && h.xp == 4), isTrue);
+    expect(
+        habits.habits.any((h) => h.title == 'Imported' && h.xp == 4), isTrue);
     expect(habits.habits.length >= beforeLen, isTrue);
   });
 
