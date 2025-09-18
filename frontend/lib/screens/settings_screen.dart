@@ -1,3 +1,6 @@
+// File: frontend/lib/screens/settings_screen.dart
+// Settings: theme toggle, daily summary switch, and JSON export/import helpers.
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -16,11 +19,14 @@ class SettingsScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
         children: [
+          // Theme (system/light/dark via provider toggle)
           SwitchListTile(
             title: const Text('Dark Mode'),
             value: Theme.of(context).brightness == Brightness.dark,
             onChanged: (_) => context.read<ThemeProvider>().toggle(),
           ),
+
+          // Daily summary/reminder flag (UI text kept in DE)
           SwitchListTile(
             title: const Text('Tägliche Zusammenfassung (Reminder)'),
             subtitle: const Text('Abends eine Übersicht deiner Check-ins'),
@@ -28,7 +34,10 @@ class SettingsScreen extends StatelessWidget {
             onChanged: (v) =>
                 context.read<SettingsProvider>().setDailySummary(v),
           ),
+
           const Divider(),
+
+          // Export habits as JSON to the clipboard
           ListTile(
             leading: const Icon(Icons.download_outlined),
             title: const Text('Daten exportieren (JSON in Zwischenablage)'),
@@ -41,6 +50,8 @@ class SettingsScreen extends StatelessWidget {
               );
             },
           ),
+
+          // Import habits from pasted JSON via a small dialog
           ListTile(
             leading: const Icon(Icons.upload_outlined),
             title: const Text('Daten importieren (JSON einfügen)'),
@@ -54,19 +65,24 @@ class SettingsScreen extends StatelessWidget {
                     controller: ctrl,
                     maxLines: 8,
                     decoration: const InputDecoration(
-                        hintText: 'Füge hier dein JSON ein'),
+                      hintText: 'Füge hier dein JSON ein',
+                    ),
                   ),
                   actions: [
                     TextButton(
-                        onPressed: () => Navigator.pop(ctx, false),
-                        child: const Text('Cancel')),
+                      onPressed: () => Navigator.pop(ctx, false),
+                      child: const Text('Cancel'),
+                    ),
                     TextButton(
-                        onPressed: () => Navigator.pop(ctx, true),
-                        child: const Text('Import')),
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: const Text('Import'),
+                    ),
                   ],
                 ),
               );
               if (!context.mounted) return;
+
+              // Only import non-empty JSON when user confirmed
               if (ok == true && ctrl.text.trim().isNotEmpty) {
                 await context
                     .read<HabitProvider>()

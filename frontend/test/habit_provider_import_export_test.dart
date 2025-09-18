@@ -1,3 +1,6 @@
+// File: frontend/test/habit_provider_import_export_test.dart
+// HabitProvider: verifies JSON export/import roundtrip using shared_preferences mock.
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:levelup_habits/providers/habit_provider.dart';
@@ -15,6 +18,7 @@ void main() {
     final q = HabitProvider();
     await q.loadInitial();
     await q.importJson(json);
+
     expect(q.habits.length, 2);
     expect(q.habits.map((h) => h.title).toSet(), {'A', 'B'});
   });

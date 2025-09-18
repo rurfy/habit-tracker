@@ -1,3 +1,6 @@
+// File: frontend/lib/providers/habit_provider.dart
+// Habits domain state: CRUD, check-ins, stats, import/export (SharedPreferences-backed).
+
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -20,7 +23,7 @@ class HabitProvider extends ChangeNotifier {
         ..clear()
         ..addAll(list);
     } else {
-      // seed demo
+      // Seed demo data on first run
       _habits.addAll([
         Habit(id: '1', title: '10 min reading'),
         Habit(id: '2', title: 'Short workout', xp: 8),
@@ -88,7 +91,9 @@ class HabitProvider extends ChangeNotifier {
   int get totalXpToday {
     final today = DateTime.now();
     return _habits.fold(
-        0, (sum, h) => sum + (h.isCheckedToday(today) ? h.xp : 0));
+      0,
+      (sum, h) => sum + (h.isCheckedToday(today) ? h.xp : 0),
+    );
   }
 
   int get totalXpAllTime =>
@@ -96,6 +101,7 @@ class HabitProvider extends ChangeNotifier {
 
   int get level => (totalXpAllTime ~/ 100) + 1;
 
+  /// Consecutive-day streak for [h], counting back from today.
   int streakFor(Habit h) {
     int streak = 0;
     DateTime day = DateTime.now();
@@ -111,10 +117,13 @@ class HabitProvider extends ChangeNotifier {
     return streak;
   }
 
+  /// Earned badge names based on streaks, XP, and total check-ins.
   List<String> get earnedBadges {
     final badges = <String>[];
     final longestStreak = _habits.fold<int>(
-        0, (maxS, h) => maxS > streakFor(h) ? maxS : streakFor(h));
+      0,
+      (maxS, h) => maxS > streakFor(h) ? maxS : streakFor(h),
+    );
     if (longestStreak >= 7) badges.add('7-Day Streak');
     if (totalXpAllTime >= 500) badges.add('500 XP Club');
     final totalCheckins = _habits.fold<int>(0, (s, h) => s + h.checkins.length);
@@ -122,7 +131,8 @@ class HabitProvider extends ChangeNotifier {
     return badges;
   }
 
-  /// Anzahl erledigter Check-ins der letzten 7 Tage (inkl. heute), Index 0 = 6 Tage zurück, 6 = heute
+  /// Completed check-ins for the last 7 days (incl. today).
+  /// Index 0 = 6 days ago, index 6 = today.
   List<int> last7DaysCounts() {
     final today = DateTime.now();
     List<int> counts = List.filled(7, 0);
@@ -137,6 +147,8 @@ class HabitProvider extends ChangeNotifier {
     return counts;
   }
 
+  /// Completed check-ins for the last [n] days.
+  /// Index 0 = oldest day, index n-1 = today.
   List<int> lastNDaysCounts(int n) {
     final today = DateTime.now();
     final counts = List<int>.filled(n, 0);
@@ -152,7 +164,8 @@ class HabitProvider extends ChangeNotifier {
     return counts;
   }
 
-  /// XP pro Tag für die letzten [n] Tage, Index 0 = ältester Tag, n-1 = heute
+  /// XP per day for the last [n] days.
+  /// Index 0 = oldest day, index n-1 = today.
   List<int> dailyXpCounts(int n) {
     final today = DateTime.now();
     final counts = List<int>.filled(n, 0);
@@ -168,7 +181,7 @@ class HabitProvider extends ChangeNotifier {
     return counts;
   }
 
-  /// Top-N Gewohnheiten nach Check-in-Anzahl (absteigend)
+  /// Top-N habits by check-in count (descending).
   List<MapEntry<Habit, int>> topHabitsByCheckins(int topN) {
     final entries = _habits.map((h) => MapEntry(h, h.checkins.length)).toList()
       ..sort((a, b) => b.value.compareTo(a.value));

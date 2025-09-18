@@ -1,3 +1,6 @@
+// File: frontend/test/notifier_calls_test.dart
+// Ensures editing a habit and picking a time triggers Notifier.scheduleDaily with expected args.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -10,7 +13,7 @@ import 'package:levelup_habits/providers/settings_provider.dart';
 import 'package:levelup_habits/screens/home_screen.dart';
 import 'package:levelup_habits/services/notifier.dart';
 
-// Mock für dein Notifier-Interface mit benannten Parametern
+/// Mock for the Notifier interface (named params supported via mocktail)
 class NotifierMock extends Mock implements Notifier {}
 
 void main() {
@@ -21,22 +24,22 @@ void main() {
   testWidgets('edit + pick time ⇒ scheduleDaily called', (tester) async {
     final notif = NotifierMock();
 
-    // Stub: scheduleDaily soll ein Future<void> zurückgeben
+    // Stub scheduleDaily to return Future<void>
     when(() => notif.scheduleDaily(
           id: any(named: 'id'),
           hour: any(named: 'hour'),
           minute: any(named: 'minute'),
           title: any(named: 'title'),
         )).thenAnswer((_) async {});
-    // cancel wird in diesem Test nicht zwingend aufgerufen – kann aber auch stubbed werden:
+    // cancel may be called in other flows; stub for completeness
     when(() => notif.cancel(any())).thenAnswer((_) async {});
 
-    // HabitProvider vorbereiten
+    // Prepare provider with one habit
     final p = HabitProvider();
     await p.loadInitial();
     p.addHabit('EditMe');
 
-    // Fake TimePicker: gibt deterministisch 20:15 zurück
+    // Deterministic time picker: always returns 20:15
     Future<TimeOfDay?> fakePicker(BuildContext _, TimeOfDay __) async =>
         const TimeOfDay(hour: 20, minute: 15);
 
@@ -52,16 +55,16 @@ void main() {
       ),
     );
 
-    // Swipe left auf den ListTile mit 'EditMe' → Edit-Dialog
+    // Swipe left on 'EditMe' to open the edit dialog
     expect(find.text('EditMe'), findsOneWidget);
     await tester.drag(find.text('EditMe'), const Offset(-400, 0));
     await tester.pumpAndSettle();
 
-    // „Pick time“ → unser fakePicker setzt Reminder
+    // Pick time (fakePicker returns 20:15)
     await tester.tap(find.text('Pick time'));
     await tester.pumpAndSettle();
 
-    // Save → sollte notifier.scheduleDaily(...) triggern
+    // Save → should trigger scheduleDaily(...)
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
 

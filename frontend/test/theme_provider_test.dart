@@ -1,3 +1,6 @@
+// File: frontend/test/theme_provider_test.dart
+// ThemeProvider: toggles between dark and light.
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:levelup_habits/providers/theme_provider.dart';
 

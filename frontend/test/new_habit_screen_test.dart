@@ -1,3 +1,6 @@
+// File: frontend/test/new_habit_screen_test.dart
+// NewHabitScreen: validates title and adds a habit on save.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -7,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   setUp(() {
-    SharedPreferences.setMockInitialValues({});
+    SharedPreferences.setMockInitialValues({}); // start empty
   });
 
   testWidgets('requires title before saving', (WidgetTester tester) async {
@@ -21,12 +24,12 @@ void main() {
       ),
     );
 
-    // Direkt speichern ohne Titel -> Validator greift
+    // Save without title → shows validator error
     await tester.tap(find.text('Save'));
-    await tester.pump(); // zeigt Fehlermeldung
+    await tester.pump();
     expect(find.textContaining('Please enter a title'), findsOneWidget);
 
-    // Titel setzen -> Save klappt
+    // Provide title → save succeeds
     await tester.enterText(find.byType(TextFormField).first, 'Meditation');
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();

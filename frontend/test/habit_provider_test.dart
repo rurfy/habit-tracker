@@ -1,10 +1,13 @@
+// File: frontend/test/habit_provider_test.dart
+// HabitProvider: add/delete, toggle today, edit fields, and badge awards.
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:levelup_habits/providers/habit_provider.dart';
 
 void main() {
   setUp(() {
-    // WICHTIG: leerer Zustand -> verhindert Seeding der Demo-Habits
+    // Important: start empty to prevent demo seeding
     SharedPreferences.setMockInitialValues({'habits_v1': '[]'});
   });
 
@@ -25,9 +28,9 @@ void main() {
     await p.loadInitial();
 
     p.addHabit('Read', xp: 10);
-    final habit = p.habits.last; // zuletzt hinzugefügt (xp=10)
+    final habit = p.habits.last; // last added (xp=10)
 
-    // Wir nutzen deine vorhandene API: heute togglen
+    // Use provider API: toggle today
     p.toggleCheckinToday(habit.id);
     expect(habit.checkins.length, 1);
     expect(p.totalXpToday, 10);
@@ -60,7 +63,7 @@ void main() {
     p.addHabit('Grind', xp: 1000);
     final habit = p.habits.last;
 
-    // Ein Check-in -> 1000 XP all-time
+    // Single check-in → 1000 XP all-time
     p.toggleCheckinToday(habit.id);
     expect(p.earnedBadges.contains('500 XP Club'), isTrue);
   });

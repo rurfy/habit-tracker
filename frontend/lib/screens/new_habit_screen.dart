@@ -1,3 +1,6 @@
+// File: frontend/lib/screens/new_habit_screen.dart
+// Simple form to create a habit (title + XP) and add it via HabitProvider.
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/habit_provider.dart';
@@ -24,6 +27,7 @@ class _NewHabitScreenState extends State<NewHabitScreen> {
           key: _formKey,
           child: Column(
             children: [
+              // Habit title
               TextFormField(
                 controller: _titleCtrl,
                 decoration: const InputDecoration(labelText: 'Title'),
@@ -32,6 +36,8 @@ class _NewHabitScreenState extends State<NewHabitScreen> {
                     : null,
               ),
               const SizedBox(height: 12),
+
+              // XP per check-in
               TextFormField(
                 controller: _xpCtrl,
                 decoration:
@@ -44,7 +50,10 @@ class _NewHabitScreenState extends State<NewHabitScreen> {
                   return null;
                 },
               ),
+
               const Spacer(),
+
+              // Submit
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(

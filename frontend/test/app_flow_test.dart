@@ -1,3 +1,6 @@
+// File: frontend/test/app_flow_test.dart
+// App flow (happy path): create habit → check in → verify XP via provider → open Stats.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -9,7 +12,7 @@ import 'package:levelup_habits/providers/settings_provider.dart';
 import 'package:levelup_habits/screens/home_screen.dart';
 import 'package:levelup_habits/services/notifier.dart';
 
-/// No-op Notifier für Widget-Tests
+/// No-op Notifier for widget tests
 class DummyNotifier implements Notifier {
   @override
   Future<void> cancel(int id) async {}
@@ -25,7 +28,7 @@ class DummyNotifier implements Notifier {
 
 void main() {
   setUp(() {
-    // shared_preferences Mock leeren → keine alten Seeds/States
+    // Reset shared_preferences mock → no stale seeds/state between tests
     SharedPreferences.setMockInitialValues({'habits_v1': '[]'});
   });
 
@@ -46,34 +49,28 @@ void main() {
       ),
     );
 
-    // ----------------------------------------
-    // 1) Neuen Habit anlegen (FAB Extended hat Label "New Habit")
-    // ----------------------------------------
+    // 1) Create a new habit (Extended FAB has visible label "New Habit")
     final fabWithLabel = find.widgetWithText(FloatingActionButton, 'New Habit');
-    // Fallback: direkt nach Textelement "New Habit" suchen (Ext. FAB rendert Label separat)
-    final fabText = find.text('New Habit');
+    final fabText = find.text('New Habit'); // fallback for label
     expect(fabWithLabel.evaluate().isNotEmpty || fabText.evaluate().isNotEmpty,
         isTrue);
 
-    // Tippe auf den FAB über das Label (robust, falls mehrere Icons vorhanden sind)
     await tester.tap(fabText);
     await tester.pumpAndSettle();
 
-    // ----------------------------------------
-    // 2) Titel & optional XP eingeben und speichern
-    // ----------------------------------------
+    // 2) Enter title (and optional XP) then save
     final textFields = find.byType(TextField);
     expect(textFields, findsWidgets);
 
-    // Erstes TextField = Titel
+    // First TextField = Title
     await tester.enterText(textFields.at(0), 'Flow Habit');
 
-    // Zweites TextField (falls vorhanden) = XP
+    // Second TextField (if present) = XP
     if (textFields.evaluate().length >= 2) {
       await tester.enterText(textFields.at(1), '7');
     }
 
-    // Save/Add/Create-Button suchen (abhängig von deinem NewHabitScreen)
+    // Find a save/confirm button by common labels/types
     Finder saveBtn = find.text('Save');
     if (saveBtn.evaluate().isEmpty) {
       if (find.text('Add').evaluate().isNotEmpty) {
@@ -90,15 +87,15 @@ void main() {
     await tester.tap(saveBtn);
     await tester.pumpAndSettle();
 
-    // Neuer Habit sichtbar
+    // New habit is visible
     expect(find.text('Flow Habit'), findsOneWidget);
 
-// ---> NEU: XP aus dem Provider ablesen
+    // Read XP of the new habit from the provider (dynamic, not hardcoded)
     final habit =
         habitProvider.habits.firstWhere((h) => h.title == 'Flow Habit');
     final xpOfNewHabit = habit.xp;
 
-// 3) Check-in setzen …
+    // 3) Toggle today's check-in via the tile checkbox
     final habitTile = find.byWidgetPredicate(
       (w) =>
           w is ListTile &&
@@ -116,18 +113,16 @@ void main() {
     await tester.tap(checkBoxInTile);
     await tester.pump();
 
-// ---> Erwartung dynamisch statt hart 5/7
+    // Provider reflects today's XP total
     expect(habitProvider.totalXpToday, xpOfNewHabit);
 
-    // ----------------------------------------
-    // 4) Stats öffnen: über das eindeutige Insights-Icon in der AppBar
-    // ----------------------------------------
+    // 4) Open Stats via the AppBar Insights icon
     final statsIcon = find.byIcon(Icons.insights_outlined);
     expect(statsIcon, findsOneWidget);
     await tester.tap(statsIcon);
     await tester.pumpAndSettle();
 
-    // Grobe Heuristik: Stats-Screen zeigt z. B. "Level" irgendwo an
+    // Sanity check: Stats screen shows "Level"
     expect(find.textContaining('Level'), findsWidgets);
   });
 }

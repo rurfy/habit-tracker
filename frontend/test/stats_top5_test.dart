@@ -1,3 +1,6 @@
+// File: frontend/test/stats_top5_test.dart
+// StatsScreen Top 5: verifies sorting/labels; charts render after 7d/30d toggle.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -32,7 +35,7 @@ void main() {
       return DateTime(now.year, now.month, now.day);
     }
 
-    // Create 6 habits with different check-in counts so we can assert Top 5
+    // Create 6 habits with distinct counts to assert Top 5 ordering
     p.addHabit('Alpha');
     p.habits[0].checkins.addAll({d(0), d(1), d(2)}); // 3
     p.addHabit('Bravo');
@@ -54,12 +57,12 @@ void main() {
     await tester.tap(find.text('Top 5'));
     await tester.pumpAndSettle();
 
-    // Expect top habits appear with counts in the label text, e.g. 'Delta (8)'
+    // Expect labels with counts, e.g., 'Delta (8)'
     expect(find.textContaining('Delta (8)'), findsOneWidget);
     expect(find.textContaining('Echo (7)'), findsOneWidget);
     expect(find.textContaining('Foxtrot (5)'), findsOneWidget);
 
-    // Bravo (1) should be 6th -> not listed
+    // Bravo (1) is 6th → not listed
     expect(find.textContaining('Bravo (1)'), findsNothing);
   });
 
@@ -68,7 +71,7 @@ void main() {
     final p = HabitProvider();
     await p.loadInitial();
 
-    // Seed a single habit with ~20 days of check-ins to exercise 30d range
+    // Seed a single habit with ~20 days to exercise 30d range
     p.addHabit('Runner');
     for (int i = 0; i < 20; i++) {
       final now = DateTime.now().subtract(Duration(days: i));
@@ -80,11 +83,10 @@ void main() {
     expect(find.text('7d'), findsOneWidget);
     expect(find.text('30d'), findsOneWidget);
 
-    // Toggle to 30d and make sure the view renders
+    // Toggle to 30d; ensure all tabs still render
     await tester.tap(find.text('30d'));
     await tester.pumpAndSettle();
 
-    // Ensure the three tabs are still there (charts built)
     expect(find.text('XP'), findsOneWidget);
     expect(find.text('Check-ins'), findsOneWidget);
     expect(find.text('Top 5'), findsOneWidget);

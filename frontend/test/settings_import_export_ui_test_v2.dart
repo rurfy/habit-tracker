@@ -1,3 +1,6 @@
+// File: frontend/test/settings_import_export_ui_test_v2.dart
+// Settings UI: export copies JSON to clipboard; import updates provider; dark mode toggles ThemeProvider.
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,6 +17,7 @@ void main() {
     SharedPreferences.setMockInitialValues({'habits_v1': '[]'});
   });
 
+  // Find ListTile by title text containing "export"
   Finder findExportTile() {
     return find.byWidgetPredicate((w) {
       if (w is ListTile) {
@@ -27,6 +31,7 @@ void main() {
     });
   }
 
+  // Find ListTile by title text containing "import"
   Finder findImportTile() {
     return find.byWidgetPredicate((w) {
       if (w is ListTile) {
@@ -40,6 +45,7 @@ void main() {
     });
   }
 
+  // Find the Dark Mode switch (EN/DE tolerant)
   Finder findDarkModeSwitch() {
     return find.byWidgetPredicate((w) {
       if (w is SwitchListTile) {
@@ -80,13 +86,12 @@ void main() {
     final theme = ThemeProvider();
     await pumpSettings(tester, habits: habits, theme: theme);
 
-    // Tap the export tile
+    // Tap export and assert clipboard got JSON (skip snackbar text)
     final exportTile = findExportTile();
     expect(exportTile, findsOneWidget);
     await tester.tap(exportTile);
     await tester.pumpAndSettle();
 
-    // Clipboard should hold JSON (snackbar text varies by locale; skip asserting it)
     final data = await Clipboard.getData('text/plain');
     expect(data, isNotNull);
     expect(data!.text, isNotEmpty);
@@ -94,7 +99,7 @@ void main() {
   });
 
   testWidgets('Import accepts JSON and updates provider', (tester) async {
-    // Build exported JSON from a seed provider
+    // Prepare exported JSON
     final seed = HabitProvider();
     await seed.loadInitial();
     seed.addHabit('Imported', xp: 4);
@@ -107,13 +112,12 @@ void main() {
     final theme = ThemeProvider();
     await pumpSettings(tester, habits: habits, theme: theme);
 
-    // Tap the import tile
+    // Open import, paste JSON, confirm
     final importTile = findImportTile();
     expect(importTile, findsOneWidget);
     await tester.tap(importTile);
     await tester.pumpAndSettle();
 
-    // Enter JSON and confirm via the dialog's Import button
     await tester.enterText(find.byType(TextField).first, json);
     final importBtn = find.descendant(
       of: find.byType(AlertDialog),
@@ -122,9 +126,10 @@ void main() {
     await tester.tap(importBtn);
     await tester.pumpAndSettle();
 
-    // Provider updated
     expect(
-        habits.habits.any((h) => h.title == 'Imported' && h.xp == 4), isTrue);
+      habits.habits.any((h) => h.title == 'Imported' && h.xp == 4),
+      isTrue,
+    );
     expect(habits.habits.length >= beforeLen, isTrue);
   });
 
@@ -138,6 +143,7 @@ void main() {
     final before = theme.mode;
     final switchFinder = findDarkModeSwitch();
     expect(switchFinder, findsOneWidget);
+
     await tester.tap(switchFinder);
     await tester.pump();
 

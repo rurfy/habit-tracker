@@ -1,3 +1,6 @@
+// File: frontend/test/storage_service_test.dart
+// StorageService: verifies save/load/delete using shared_preferences mock.
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:levelup_habits/services/storage_service.dart';

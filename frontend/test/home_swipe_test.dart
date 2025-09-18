@@ -1,3 +1,6 @@
+// File: frontend/test/home_swipe_test.dart
+// Swipe gestures on HomeScreen: right → delete (with confirm), left → edit & save.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -7,7 +10,7 @@ import 'package:levelup_habits/providers/habit_provider.dart';
 import 'package:levelup_habits/screens/home_screen.dart';
 import 'package:levelup_habits/services/notifier.dart';
 
-/// Einfacher No-Op Notifier für Widget-Tests
+/// No-op Notifier for widget tests
 class DummyNotifier implements Notifier {
   @override
   Future<void> cancel(int id) async {}
@@ -22,7 +25,7 @@ class DummyNotifier implements Notifier {
 
 void main() {
   setUp(() {
-    // shared_preferences mocken, damit der Provider laden kann
+    // SharedPreferences mock so the provider can load without real storage
     SharedPreferences.setMockInitialValues({'habits_v1': '[]'});
   });
 
@@ -43,11 +46,11 @@ void main() {
 
     expect(find.text('To Delete'), findsOneWidget);
 
-    // Swipe nach rechts (startToEnd) -> Delete-Dialog
+    // Swipe right (startToEnd) → delete dialog
     await tester.drag(find.text('To Delete'), const Offset(500, 0));
     await tester.pumpAndSettle();
 
-    // Bestätigen
+    // Confirm
     await tester.tap(find.text('Delete'));
     await tester.pumpAndSettle();
 
@@ -69,21 +72,21 @@ void main() {
       ),
     );
 
-    // Swipe nach links (endToStart) -> Edit-Dialog
+    // Swipe left (endToStart) → edit dialog
     await tester.drag(find.text('Old Title'), const Offset(-500, 0));
     await tester.pumpAndSettle();
 
-    // Titel anpassen + speichern
+    // Update title and save
     await tester.enterText(find.byType(TextField).first, 'New Title');
     await tester.tap(find.text('Save'));
-    await tester.pump(); // ein Frame
+    await tester.pump(); // one frame
     await tester.pump(const Duration(milliseconds: 50));
     await tester.pumpAndSettle();
 
-    // Dialog sollte geschlossen sein
+    // Dialog closed
     expect(find.byType(AlertDialog), findsNothing);
 
-    // Spezifisch den ListTile-Titel prüfen (nicht das TextField)
+    // Verify the ListTile title (not the TextField)
     final listTileWithNewTitle = find.byWidgetPredicate((w) {
       if (w is ListTile) {
         final t = w.title;

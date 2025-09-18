@@ -1,3 +1,6 @@
+// File: frontend/lib/providers/settings_provider.dart
+// App settings: exposes a daily summary/reminder flag.
+
 import 'package:flutter/material.dart';
 
 class SettingsProvider extends ChangeNotifier {

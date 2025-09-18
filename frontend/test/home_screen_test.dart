@@ -1,3 +1,6 @@
+// File: frontend/test/home_screen_test.dart
+// Smoke test: HomeScreen builds and shows the app title.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';

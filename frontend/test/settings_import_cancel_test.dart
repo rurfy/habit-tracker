@@ -1,3 +1,6 @@
+// File: frontend/test/settings_import_cancel_test.dart
+// Settings import: opening the dialog and tapping Cancel leaves provider state unchanged.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -13,6 +16,7 @@ void main() {
     SharedPreferences.setMockInitialValues({'habits_v1': '[]'});
   });
 
+  // Finder for the import ListTile (matches by title text).
   Finder findImportTile() {
     return find.byWidgetPredicate((w) {
       if (w is ListTile) {
@@ -53,7 +57,7 @@ void main() {
     await tester.tap(importTile);
     await tester.pumpAndSettle();
 
-    // Tap the dedicated Cancel button in the dialog
+    // Tap dialog Cancel
     final cancelBtn = find.descendant(
       of: find.byType(AlertDialog),
       matching: find.widgetWithText(TextButton, 'Cancel'),

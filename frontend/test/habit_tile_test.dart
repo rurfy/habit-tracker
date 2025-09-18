@@ -1,3 +1,6 @@
+// File: frontend/test/habit_tile_test.dart
+// Widget test: tapping the checkbox on HabitTile toggles today's completion.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -7,7 +10,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   setUp(() {
-    SharedPreferences.setMockInitialValues({});
+    SharedPreferences.setMockInitialValues(
+        {}); // start empty → demo seeding may occur in loadInitial
   });
 
   testWidgets('Tapping checkbox toggles completion',

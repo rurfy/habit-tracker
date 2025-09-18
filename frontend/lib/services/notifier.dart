@@ -1,6 +1,9 @@
+// File: frontend/lib/services/notifier.dart
+// Notification abstraction (mockable in tests); impl delegates to NotificationService.
+
 import 'notification_service.dart';
 
-/// Abstraktion, damit wir in Tests mocken können.
+/// Abstraction for scheduling/canceling notifications (easy to mock in tests).
 abstract class Notifier {
   Future<void> scheduleDaily({
     required int id,
@@ -12,7 +15,7 @@ abstract class Notifier {
   Future<void> cancel(int id);
 }
 
-/// Produktiv-Implementierung, ruft die statischen Methoden auf.
+/// Production implementation: forwards to NotificationService.
 class LocalNotifier implements Notifier {
   @override
   Future<void> scheduleDaily({

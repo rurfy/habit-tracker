@@ -1,3 +1,6 @@
+// File: frontend/test/stats_toggle_test.dart
+// StatsScreen: simple smoke test for 7d/30d range toggle.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -24,10 +27,10 @@ void main() {
     expect(find.text('7d'), findsOneWidget);
     expect(find.text('30d'), findsOneWidget);
 
+    // Toggle to 30d; no crash is sufficient for this smoke test
     await tester.tap(find.text('30d'));
     await tester.pumpAndSettle();
 
-    // Kein Crash reicht hier als Smoke-Test
     expect(find.text('30d'), findsOneWidget);
   });
 }

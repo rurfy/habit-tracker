@@ -1,3 +1,6 @@
+// File: frontend/test/home_reminder_test.dart
+// HomeScreen reminder flow: schedules daily notification when a time is picked; cancels when none.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -30,7 +33,7 @@ void main() {
     await p.loadInitial();
     p.addHabit('Test Habit');
 
-    // injiziere Notifier & einen deterministischen timePicker (10:30)
+    // Inject Notifier and a deterministic timePicker (returns 10:30).
     await tester.pumpWidget(
       MultiProvider(
         providers: [
@@ -46,15 +49,15 @@ void main() {
       ),
     );
 
-    // Swipe left -> Edit-Dialog
+    // Swipe left → open Edit dialog.
     await tester.drag(find.text('Test Habit'), const Offset(-500, 0));
     await tester.pumpAndSettle();
 
-    // Zeit "wählen" (unser injizierter Picker liefert sofort 10:30)
+    // Pick time (our injected picker immediately returns 10:30).
     await tester.tap(find.text('Pick time'));
     await tester.pump();
 
-    // Speichern (Dialog schließt sofort, Scheduling läuft async)
+    // Save (dialog closes; scheduling runs async).
     await tester.tap(find.text('Save'));
     await tester.pump();
     await tester.pumpAndSettle();
@@ -93,7 +96,7 @@ void main() {
       ),
     );
 
-    // Swipe left -> Edit-Dialog (keine Zeit setzen)
+    // Swipe left → open Edit dialog (do not set a time).
     await tester.drag(find.text('Test Habit'), const Offset(-500, 0));
     await tester.pumpAndSettle();
 

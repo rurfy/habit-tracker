@@ -1,9 +1,12 @@
+// File: frontend/lib/models/habit.dart
+// Habit model: title/description, XP per check-in, and a set of normalized (midnight) check-in dates.
+
 class Habit {
   final String id;
   String title;
   String? description;
   int xp; // XP per check-in
-  Set<DateTime> checkins; // store dates at midnight
+  Set<DateTime> checkins; // normalized to midnight (YYYY-MM-DD)
 
   Habit({
     required this.id,
@@ -13,11 +16,13 @@ class Habit {
     Set<DateTime>? checkins,
   }) : checkins = checkins ?? {};
 
+  /// True if a check-in exists for [today] (date-only).
   bool isCheckedToday(DateTime today) {
     final t = DateTime(today.year, today.month, today.day);
     return checkins.contains(t);
   }
 
+  /// Toggle the check-in for [today] (date-only).
   void toggleToday(DateTime today) {
     final t = DateTime(today.year, today.month, today.day);
     if (checkins.contains(t)) {
@@ -29,6 +34,7 @@ class Habit {
 
   int get totalCheckins => checkins.length;
 
+  /// JSON (dates serialized as ISO strings).
   Map<String, dynamic> toJson() => {
         'id': id,
         'title': title,
@@ -37,6 +43,7 @@ class Habit {
         'checkins': checkins.map((d) => d.toIso8601String()).toList(),
       };
 
+  /// Parse from JSON, normalizing dates to midnight.
   static Habit fromJson(Map<String, dynamic> map) {
     return Habit(
       id: map['id'] as String,

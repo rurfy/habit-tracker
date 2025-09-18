@@ -1,3 +1,6 @@
+// File: frontend/test/stats_screen_test.dart
+// StatsScreen: renders safely and shows Level/Total XP; provider aggregates last 7 days correctly.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -49,23 +52,27 @@ void main() {
     final b = p.habits[1];
     final today = DateTime.now();
 
-    // A: heute + vorgestern
+    // A: today + the day before yesterday
     a.checkins.addAll([
       DateTime(today.year, today.month, today.day),
       DateTime(
-          today.subtract(const Duration(days: 2)).year,
-          today.subtract(const Duration(days: 2)).month,
-          today.subtract(const Duration(days: 2)).day),
+        today.subtract(const Duration(days: 2)).year,
+        today.subtract(const Duration(days: 2)).month,
+        today.subtract(const Duration(days: 2)).day,
+      ),
     ]);
-    // B: gestern
-    b.checkins.add(DateTime(
+    // B: yesterday
+    b.checkins.add(
+      DateTime(
         today.subtract(const Duration(days: 1)).year,
         today.subtract(const Duration(days: 1)).month,
-        today.subtract(const Duration(days: 1)).day));
+        today.subtract(const Duration(days: 1)).day,
+      ),
+    );
 
     final counts = p.last7DaysCounts();
     expect(counts.length, 7);
-    // Index 6 = heute, 5 = gestern, 4 = vorgestern
+    // Index 6 = today, 5 = yesterday, 4 = day before yesterday
     expect(counts[6], 1);
     expect(counts[5], 1);
     expect(counts[4], 1);

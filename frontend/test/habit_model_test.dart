@@ -1,3 +1,6 @@
+// File: frontend/test/habit_model_test.dart
+// Habit model tests: toggle/isChecked/totalCheckins and JSON roundtrip.
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:levelup_habits/models/habit.dart';
 
@@ -11,12 +14,12 @@ void main() {
     expect(h.isCheckedToday(today), isTrue);
     expect(h.totalCheckins, 1);
 
-    // toggle again -> remove
+    // Toggle again → removes today
     h.toggleToday(today);
     expect(h.isCheckedToday(today), isFalse);
     expect(h.totalCheckins, 0);
 
-    // add two distinct days
+    // Add two distinct days
     h.toggleToday(today);
     final yesterday = today.subtract(const Duration(days: 1));
     h.toggleToday(yesterday);

@@ -1,3 +1,6 @@
+// File: frontend/lib/screens/stats_screen.dart
+// Stats UI: XP line, Check-ins bar, and Top 5 list; supports 7d/30d ranges.
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -12,7 +15,7 @@ class StatsScreen extends StatefulWidget {
 class _StatsScreenState extends State<StatsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tab;
-  int range = 7; // 7 oder 30
+  int range = 7; // days shown: 7 or 30
 
   @override
   void initState() {
@@ -49,14 +52,16 @@ class _StatsScreenState extends State<StatsScreen>
         actions: [
           const SizedBox(width: 8),
           ChoiceChip(
-              label: const Text('7d'),
-              selected: range == 7,
-              onSelected: (_) => setState(() => range = 7)),
+            label: const Text('7d'),
+            selected: range == 7,
+            onSelected: (_) => setState(() => range = 7),
+          ),
           const SizedBox(width: 8),
           ChoiceChip(
-              label: const Text('30d'),
-              selected: range == 30,
-              onSelected: (_) => setState(() => range = 30)),
+            label: const Text('30d'),
+            selected: range == 30,
+            onSelected: (_) => setState(() => range = 30),
+          ),
           const SizedBox(width: 8),
         ],
       ),
@@ -74,13 +79,13 @@ class _StatsScreenState extends State<StatsScreen>
               child: TabBarView(
                 controller: _tab,
                 children: [
-                  // XP TAB – Line chart
+                  // XP (line)
                   _buildXpLineChart(xpData, labels),
 
-                  // CHECK-INS TAB – Bar chart
+                  // Check-ins (bars)
                   _buildCheckinsBar(chkData, labels),
 
-                  // TOP 5 TAB – horizontal bars (simple)
+                  // Top 5 (horizontal bars)
                   _buildTopHabits(top5),
                 ],
               ),
@@ -118,9 +123,11 @@ class _StatsScreenState extends State<StatsScreen>
           LineChartBarData(
             isCurved: true,
             spots: List.generate(
-                data.length, (i) => FlSpot(i.toDouble(), data[i].toDouble())),
+              data.length,
+              (i) => FlSpot(i.toDouble(), data[i].toDouble()),
+            ),
             dotData: const FlDotData(show: false),
-            belowBarData: BarAreaData(),
+            belowBarData: BarAreaData(), // subtle fill
           ),
         ],
       ),
@@ -153,8 +160,9 @@ class _StatsScreenState extends State<StatsScreen>
         barGroups: List.generate(
           data.length,
           (i) => BarChartGroupData(
-              x: i,
-              barRods: [BarChartRodData(toY: data[i].toDouble(), width: 12)]),
+            x: i,
+            barRods: [BarChartRodData(toY: data[i].toDouble(), width: 12)],
+          ),
         ),
       ),
     );
@@ -164,7 +172,7 @@ class _StatsScreenState extends State<StatsScreen>
     if (top5.isEmpty) {
       return const Center(child: Text('No data yet'));
     }
-    // Simple horizontal list of bars
+    // Simple horizontal bars with a relative width
     final maxVal = top5
         .map((e) => e.value)
         .fold<int>(0, (m, v) => v > m ? v : m)
@@ -183,29 +191,33 @@ class _StatsScreenState extends State<StatsScreen>
               child: Stack(
                 children: [
                   Container(
-                      height: 22,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: Theme.of(context)
-                              .colorScheme
-                              .surfaceContainerHighest)),
+                    height: 22,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color:
+                          Theme.of(context).colorScheme.surfaceContainerHighest,
+                    ),
+                  ),
                   FractionallySizedBox(
                     widthFactor: ratio.toDouble(),
                     child: Container(
-                        height: 22,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            color: Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withValues(alpha: 0.25))),
+                      height: 22,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .primary
+                            .withValues(alpha: 0.25),
+                      ),
+                    ),
                   ),
                   Positioned.fill(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text('${item.key.title} (${item.value})')),
+                        alignment: Alignment.centerLeft,
+                        child: Text('${item.key.title} (${item.value})'),
+                      ),
                     ),
                   ),
                 ],
@@ -221,6 +233,7 @@ class _StatsScreenState extends State<StatsScreen>
     final now = DateTime.now();
     final days = List<DateTime>.generate(
         n, (i) => now.subtract(Duration(days: n - 1 - i)));
+    // Weekday abbreviations (currently DE locale: Mo–So)
     const short = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
     return days.map((d) => short[d.weekday - 1]).toList();
   }
